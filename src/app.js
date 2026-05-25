@@ -14,6 +14,7 @@ export async function buildApp() {
   await registerMultipart(app);
   await registerStatic(app);
   await app.register(healthRoutes);
+  app.get('/admin', async (_req, reply) => reply.redirect('/admin/'));
   await app.register(publicRoutes, { prefix: '/api' });
   await app.register(adminRoutes, { prefix: '/api' });
   return app;

@@ -27,7 +27,9 @@ ADMIN_PASSWORD=123456
 密码：123456
 ```
 
-> 上传 GitHub 时只能提交 `.env.example`，不要提交真实 `.env`。上线后建议在 `.env` 里把 `SESSION_SECRET` 改成强随机字符串，并在后台自行修改密码。
+搭建完成后请登录后台自行修改密码。
+
+> 上传 GitHub 时只能提交 `.env.example`，不要提交真实 `.env`。上线后建议在 `.env` 里把 `SESSION_SECRET` 改成强随机字符串。
 
 ### 2. 启动
 

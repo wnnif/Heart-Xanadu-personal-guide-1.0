@@ -12,5 +12,5 @@ export const config = {
   uploadDir: process.env.UPLOAD_DIR || join(ROOT, 'public', 'uploads'),
   sessionSecret: process.env.SESSION_SECRET || 'change-this-session-secret',
   adminUsername: process.env.ADMIN_USERNAME || 'admin',
-  adminPassword: process.env.ADMIN_PASSWORD || '',
+  adminPassword: process.env.ADMIN_PASSWORD || '123456',
 };

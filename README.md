@@ -12,6 +12,15 @@
 
 ## 快速启动
 
+默认后台账号密码：
+
+```txt
+账号：admin
+密码：123456
+```
+
+搭建完成后请登录后台自行修改密码。
+
 ```bash
 cp .env.example .env
 docker compose up -d --build
