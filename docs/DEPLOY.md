@@ -4,10 +4,16 @@
 
 ## 方式 A：Docker Compose 主部署
 
-### 1. 准备配置
+### 1. 克隆项目
 
 ```bash
-cd /opt/daohang
+git clone https://github.com/wnnif/Heart-Xanadu-personal-guide-1.0.git
+cd Heart-Xanadu-personal-guide-1.0
+```
+
+### 2. 准备配置
+
+```bash
 cp .env.example .env
 ```
 
@@ -27,16 +33,15 @@ ADMIN_PASSWORD=123456
 
 后台登录页只需要输入密码，不需要账号。搭建完成后请登录后台自行修改密码。
 
-> 上传 GitHub 时只能提交 `.env.example`，不要提交真实 `.env`。上线后建议在 `.env` 里把 `SESSION_SECRET` 改成强随机字符串。
+> 上传 GitHub 时只能提交 `.env.example` 和示例数据，不要提交真实 `.env`、`data/content.json`、`data/visits.json`、`data/*.sqlite`、`public/uploads/` 运行时上传内容。上线后建议在 `.env` 里把 `SESSION_SECRET` 改成强随机字符串。
 
-### 2. 启动
+### 3. 启动
 
 ```bash
-cd /opt/daohang
 docker compose up -d --build
 ```
 
-### 3. 验证
+### 4. 验证
 
 ```bash
 curl http://127.0.0.1:3100/health
