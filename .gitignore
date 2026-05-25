@@ -1,0 +1,21 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Runtime data: includes admin password, visits, stats and uploaded wallpapers
+data/*.json
+!data/content.example.json
+public/uploads/
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs and OS/editor files
+*.log
+.DS_Store
+.vscode/
+.idea/

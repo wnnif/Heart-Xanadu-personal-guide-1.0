@@ -1,0 +1,38 @@
+{
+  "siteTitle": "Heart Xanadu的个人引导页1.0",
+  "profile": {
+    "name": "Heart Xanadu",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=HX&backgroundColor=0066ff",
+    "bio": "一个简洁美观的个人引导页，支持后台编辑内容、天气、访客统计、壁纸切换和 IP 访问记录。",
+    "location": "中国",
+    "startDate": "2024-01-01"
+  },
+  "contacts": [
+    { "name": "Email", "icon": "email", "url": "mailto:hi@example.com", "color": "#EA4335" },
+    { "name": "Telegram", "icon": "telegram", "url": "https://t.me/example", "color": "#26A5E4" },
+    { "name": "GitHub", "icon": "github", "url": "https://github.com/example", "color": "#333333" }
+  ],
+  "sites": [
+    { "name": "主站", "desc": "个人主页", "url": "https://example.com", "icon": "globe", "color": "#0066ff" },
+    { "name": "博客", "desc": "文章与记录", "url": "https://blog.example.com", "icon": "compass", "color": "#ff6600" }
+  ],
+  "wallpaperMode": "api-random",
+  "wallpaperApi": "https://api.dujin.org/bing/1920.php",
+  "wallpaperDailyApi": "https://api.dujin.org/bing/1920.php",
+  "wallpaperApis": [
+    "https://api.dujin.org/bing/1920.php"
+  ],
+  "wallpapers": [],
+  "weather": {
+    "enabled": true,
+    "mode": "visitor-ip",
+    "api": "https://wttr.in/Shanghai?format=j1"
+  },
+  "footer": {
+    "icp": "",
+    "copyright": "© 2024 Heart Xanadu"
+  },
+  "admin": {
+    "password": "change_this_password"
+  }
+}

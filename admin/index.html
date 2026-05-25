@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 - 浩一导航</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --bg: #0f0f1a; --card: #1a1a2e; --border: #2a2a4a; --accent: #0066ff; --text: #e0e0e0; --muted: #888; --danger: #ff4444; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.login-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 360px; }
+.login-box h2 { text-align: center; margin-bottom: 24px; }
+input, textarea, select { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; margin-bottom: 12px; }
+input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { min-height: 80px; resize: vertical; }
+button, .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #0052cc; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-block { width: 100%; }
+
+/* Admin layout */
+.admin { display: none; }
+.admin-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+.admin-header h1 { font-size: 18px; }
+.admin-body { max-width: 900px; margin: 24px auto; padding: 0 24px; }
+.section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.section h3 { margin-bottom: 16px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.item-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; padding: 8px; background: var(--bg); border-radius: 8px; }
+.item-row input { margin-bottom: 0; flex: 1; }
+.item-row .btn { flex-shrink: 0; }
+
+/* Stats */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.stat-box { background: var(--bg); border-radius: 8px; padding: 16px; text-align: center; }
+.stat-num { font-size: 28px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.msg { padding: 8px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; display: none; }
+.msg-ok { background: #0a3d0a; color: #4eff4e; display: block; }
+.msg-err { background: #3d0a0a; color: #ff4e4e; display: block; }
+.help { color: var(--muted); font-size: 12px; margin: -6px 0 12px; line-height: 1.7; }
+.preview-img { max-width: 180px; max-height: 100px; border-radius: 8px; margin-top: 6px; display: block; }
+.pwd-wrap { position: relative; }
+.pwd-wrap input { padding-right: 48px; }
+.pwd-eye { position:absolute; right:8px; top:7px; width:34px; height:28px; padding:0; border-radius:6px; background:#2a2a4a; color:#ddd; border:1px solid #3a3a5a; cursor:pointer; }
+.pwd-eye:hover { background:#0066ff; color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-wrap" id="login-page">
+  <div class="login-box">
+    <h2>🔐 后台管理</h2>
+    <div class="pwd-wrap"><input type="password" id="pwd" placeholder="输入管理密码" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pwd-eye" onmousedown="showPwd('pwd',true)" onmouseup="showPwd('pwd',false)" onmouseleave="showPwd('pwd',false)" onclick="togglePwd('pwd', this)">👁</button></div>
+    <div id="login-msg" class="msg"></div>
+    <button class="btn btn-primary btn-block" onclick="doLogin()">登 录</button>
+  </div>
+</div>
+
+<!-- Admin -->
+<div class="admin" id="admin-page">
+  <div class="admin-header">
+    <h1>📊 后台管理</h1>
+    <div style="display:flex;gap:12px;align-items:center">
+      <a href="/" style="color:var(--accent);text-decoration:none;font-size:14px">← 返回前台</a>
+      <button class="btn btn-sm btn-danger" onclick="doLogout()">退出</button>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div id="save-msg" class="msg"></div>
+
+    <!-- Stats -->
+    <div class="section">
+      <h3>📈 访客统计</h3>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="s-visitors">-</div><div class="stat-label">今日访客</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-today">-</div><div class="stat-label">今日浏览</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-total">-</div><div class="stat-label">总浏览</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-days">-</div><div class="stat-label">运行天数</div></div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="section">
+      <h3>👤 个人资料</h3>
+      <label>页面标题 / 浏览器标签名</label><input id="f-site-title" placeholder="例如：浩一导航">
+      <div class="row">
+        <div><label>昵称</label><input id="f-name"></div>
+        <div><label>位置</label><input id="f-location"></div>
+      </div>
+      <label>头像 URL</label><input id="f-avatar">
+      <label>个人简介</label><textarea id="f-bio"></textarea>
+      <label>建站日期</label><input id="f-startDate" type="date">
+    </div>
+
+    <!-- Contacts -->
+    <div class="section">
+      <h3>📱 联系方式</h3>
+      <div class="help">图标可填：qq、wechat、telegram、github、email/mail、twitter、globe、cloud、image、compass、link。填 QQ/qq 都会显示 QQ 图标。</div>
+      <div id="contacts-list"></div>
+      <button class="btn btn-sm btn-primary" onclick="addContact()" style="margin-top:8px">+ 添加联系方式</button>
+    </div>
+
+    <!-- Sites -->
+    <div class="section">
+      <h3>🌐 个人站点</h3>
+      <div class="help">站点图标同样支持：qq、wechat、telegram、github、email、globe、cloud、image、compass、link。</div>
+      <div id="sites-list"></div>
+      <button class="btn btn-sm btn-primary" onclick="addSite()" style="margin-top:8px">+ 添加站点</button>
+    </div>
+
+    <!-- Wallpapers -->
+    <div class="section">
+      <h3>🎨 壁纸</h3>
+      <label>壁纸模式</label>
+      <select id="f-wallpaper-mode">
+        <option value="api-random">随机 API（每次刷新/切换随机图）</option>
+        <option value="daily">每日 API（每日一张）</option>
+        <option value="list">固定图片列表</option>
+        <option value="upload">本地上传图片</option>
+      </select>
+      <label>随机 API 列表（一行一个）</label>
+      <textarea id="f-wallpaper-apis" placeholder="https://api.dujin.org/bing/1920.php"></textarea>
+      <label>每日壁纸 API</label><input id="f-wallpaper-daily" placeholder="https://api.dujin.org/bing/1920.php">
+      <label>固定/上传壁纸列表</label>
+      <div id="wp-list"></div>
+      <button class="btn btn-sm btn-primary" onclick="addWp()" style="margin-top:8px">+ 添加壁纸 URL</button>
+      <div style="margin-top:12px">
+        <label>上传壁纸</label>
+        <input type="file" id="wallpaper-file" accept="image/*">
+        <button class="btn btn-sm btn-primary" onclick="uploadWallpaper()">上传并加入列表</button>
+      </div>
+    </div>
+
+    <!-- Weather -->
+    <div class="section">
+      <h3>🌤️ 天气</h3>
+      <label>天气模式</label>
+      <select id="f-weather-mode">
+        <option value="visitor-ip">访客 IP 自动定位（不弹权限）</option>
+        <option value="fixed">固定城市/API</option>
+      </select>
+      <label>固定天气 API / 回退 API</label><input id="f-weather-api" placeholder="https://wttr.in/Shanghai?format=j1">
+    </div>
+
+    <!-- Footer -->
+    <div class="section">
+      <h3>📄 页脚</h3>
+      <div class="row">
+        <div><label>版权信息</label><input id="f-copyright"></div>
+        <div><label>ICP 备案</label><input id="f-icp"></div>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="section">
+      <h3>🔑 修改密码</h3>
+      <div class="row">
+        <div><label>旧密码</label><div class="pwd-wrap"><input id="f-oldpwd" type="password"><button type="button" class="pwd-eye" onmousedown="showPwd('f-oldpwd',true)" onmouseup="showPwd('f-oldpwd',false)" onmouseleave="showPwd('f-oldpwd',false)" onclick="togglePwd('f-oldpwd', this)">👁</button></div></div>
+        <div><label>新密码</label><div class="pwd-wrap"><input id="f-newpwd" type="password"><button type="button" class="pwd-eye" onmousedown="showPwd('f-newpwd',true)" onmouseup="showPwd('f-newpwd',false)" onmouseleave="showPwd('f-newpwd',false)" onclick="togglePwd('f-newpwd', this)">👁</button></div></div>
+      </div>
+      <button class="btn btn-sm btn-primary" onclick="changePwd()">修改密码</button>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="saveAll()" style="margin-top:12px;padding:14px;font-size:16px">💾 保存所有修改</button>
+    <div style="height:40px"></div>
+  </div>
+</div>
+
+<script>
+let content = null;
+
+function showPwd(id, show) {
+  const el = document.getElementById(id);
+  if (!el || el.dataset.locked === '1') return;
+  el.type = show ? 'text' : 'password';
+}
+function togglePwd(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const locked = el.dataset.locked === '1';
+  if (locked) {
+    el.dataset.locked = '0';
+    el.type = 'password';
+    btn.textContent = '👁';
+  } else {
+    el.dataset.locked = '1';
+    el.type = 'text';
+    btn.textContent = '🙈';
+  }
+}
+
+async function doLogin() {
+  const pwd = document.getElementById('pwd').value;
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pwd}) });
+  const d = await res.json();
+  if (d.ok) { loadAdmin(); }
+  else { showMsg('login-msg','密码错误','err'); }
+}
+
+async function doLogout() {
+  await fetch('/api/admin/logout', {method:'POST'});
+  location.reload();
+}
+
+async function loadAdmin() {
+  const res = await fetch('/api/admin/content');
+  if (!res.ok) return;
+  content = await res.json();
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+
+  // Fill profile
+  document.title = '后台管理 - ' + (content.siteTitle || '个人导航');
+  document.getElementById('f-site-title').value = content.siteTitle || '';
+  document.getElementById('f-name').value = content.profile.name;
+  document.getElementById('f-location').value = content.profile.location;
+  document.getElementById('f-avatar').value = content.profile.avatar;
+  document.getElementById('f-bio').value = content.profile.bio;
+  document.getElementById('f-startDate').value = content.profile.startDate;
+
+  // Wallpaper
+  document.getElementById('f-wallpaper-mode').value = content.wallpaperMode || 'api-random';
+  document.getElementById('f-wallpaper-apis').value = (content.wallpaperApis || []).join('\n');
+  document.getElementById('f-wallpaper-daily').value = content.wallpaperDailyApi || '';
+
+  // Weather
+  document.getElementById('f-weather-mode').value = content.weather?.mode || 'visitor-ip';
+  document.getElementById('f-weather-api').value = content.weather?.api || '';
+
+  // Footer
+  document.getElementById('f-copyright').value = content.footer?.copyright || '';
+  document.getElementById('f-icp').value = content.footer?.icp || '';
+
+  // Contacts
+  renderContacts();
+  // Sites
+  renderSites();
+  // Wallpapers
+  renderWps();
+  // Stats
+  loadAdminStats();
+}
+
+function renderContacts() {
+  const el = document.getElementById('contacts-list');
+  el.innerHTML = content.contacts.map((c,i) => `
+    <div class="item-row">
+      <input value="${esc(c.name)}" placeholder="名称" onchange="content.contacts[${i}].name=this.value">
+      <input value="${esc(c.icon)}" placeholder="图标，如 qq/wechat" onchange="content.contacts[${i}].icon=this.value.toLowerCase()" style="max-width:130px">
+      <input value="${esc(c.url)}" placeholder="链接" onchange="content.contacts[${i}].url=this.value">
+      <input value="${esc(c.color)}" placeholder="颜色" onchange="content.contacts[${i}].color=this.value" style="max-width:80px">
+      <button class="btn btn-sm btn-danger" onclick="content.contacts.splice(${i},1);renderContacts()">✕</button>
+    </div>
+  `).join('');
+}
+
+function addContact() {
+  content.contacts.push({name:'',icon:'link',url:'',color:'#666'});
+  renderContacts();
+}
+
+function renderSites() {
+  const el = document.getElementById('sites-list');
+  el.innerHTML = content.sites.map((s,i) => `
+    <div class="item-row" style="flex-wrap:wrap">
+      <input value="${esc(s.name)}" placeholder="名称" onchange="content.sites[${i}].name=this.value" style="flex:1;min-width:100px">
+      <input value="${esc(s.desc)}" placeholder="描述" onchange="content.sites[${i}].desc=this.value" style="flex:2;min-width:150px">
+      <input value="${esc(s.url)}" placeholder="URL" onchange="content.sites[${i}].url=this.value" style="flex:2;min-width:150px">
+      <input value="${esc(s.icon)}" placeholder="图标" onchange="content.sites[${i}].icon=this.value.toLowerCase()" style="max-width:100px">
+      <input value="${esc(s.color)}" placeholder="颜色" onchange="content.sites[${i}].color=this.value" style="max-width:80px">
+      <button class="btn btn-sm btn-danger" onclick="content.sites.splice(${i},1);renderSites()">✕</button>
+    </div>
+  `).join('');
+}
+
+function addSite() {
+  content.sites.push({name:'',desc:'',url:'',icon:'globe',color:'#0066ff'});
+  renderSites();
+}
+
+function renderWps() {
+  const el = document.getElementById('wp-list');
+  el.innerHTML = (content.wallpapers||[]).map((w,i) => `
+    <div class="item-row">
+      <input value="${esc(w)}" placeholder="壁纸 URL" onchange="content.wallpapers[${i}]=this.value">
+      <button class="btn btn-sm btn-danger" onclick="content.wallpapers.splice(${i},1);renderWps()">✕</button>
+    </div>
+  `).join('');
+}
+
+function addWp() {
+  if(!content.wallpapers) content.wallpapers=[];
+  content.wallpapers.push('');
+  renderWps();
+}
+
+async function loadAdminStats() {
+  try {
+    const res = await fetch('/api/admin/stats');
+    const s = await res.json();
+    document.getElementById('s-visitors').textContent = s.todayVisitors || 0;
+    document.getElementById('s-today').textContent = s.todayPv || s.today || 0;
+    document.getElementById('s-total').textContent = s.total;
+    if(content.profile.startDate) {
+      const days = Math.floor((Date.now()-new Date(content.profile.startDate).getTime())/86400000);
+      document.getElementById('s-days').textContent = days;
+    }
+  } catch(e){}
+}
+
+async function saveAll() {
+  // Gather profile fields
+  content.siteTitle = document.getElementById('f-site-title').value || '个人导航';
+  content.profile.name = document.getElementById('f-name').value;
+  content.profile.location = document.getElementById('f-location').value;
+  content.profile.avatar = document.getElementById('f-avatar').value;
+  content.profile.bio = document.getElementById('f-bio').value;
+  content.profile.startDate = document.getElementById('f-startDate').value;
+  content.wallpaperMode = document.getElementById('f-wallpaper-mode').value;
+  content.wallpaperApis = document.getElementById('f-wallpaper-apis').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  content.wallpaperApi = content.wallpaperApis[0] || '';
+  content.wallpaperDailyApi = document.getElementById('f-wallpaper-daily').value;
+  content.weather = { enabled: true, mode: document.getElementById('f-weather-mode').value, api: document.getElementById('f-weather-api').value };
+  content.footer = { copyright: document.getElementById('f-copyright').value, icp: document.getElementById('f-icp').value };
+
+  const res = await fetch('/api/admin/content', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(content) });
+  const d = await res.json();
+  if(d.ok) {
+    showMsg('save-msg','✅ 保存成功，正在刷新页面','ok');
+    setTimeout(()=>location.reload(), 800);
+  }
+  else showMsg('save-msg','保存失败: '+d.error,'err');
+}
+
+async function uploadWallpaper() {
+  const input = document.getElementById('wallpaper-file');
+  if(!input.files.length) return showMsg('save-msg','请选择图片','err');
+  const fd = new FormData();
+  fd.append('file', input.files[0]);
+  const res = await fetch('/api/admin/upload', { method:'POST', body: fd });
+  const d = await res.json();
+  if(d.ok) {
+    if(!content.wallpapers) content.wallpapers=[];
+    content.wallpapers.push(d.url);
+    content.wallpaperMode = 'upload';
+    document.getElementById('f-wallpaper-mode').value = 'upload';
+    renderWps();
+    showMsg('save-msg','✅ 上传成功，记得点底部保存','ok');
+  } else showMsg('save-msg','上传失败: '+d.error,'err');
+}
+
+async function changePwd() {
+  const oldP = document.getElementById('f-oldpwd').value;
+  const newP = document.getElementById('f-newpwd').value;
+  const res = await fetch('/api/admin/password', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({oldPassword:oldP,newPassword:newP}) });
+  const d = await res.json();
+  if(d.ok) {
+    showMsg('save-msg','✅ 密码已修改，请使用新密码重新登录','ok');
+    setTimeout(async()=>{
+      await fetch('/api/admin/logout', {method:'POST'});
+      location.reload();
+    }, 800);
+  }
+  else showMsg('save-msg','修改失败: '+d.error,'err');
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.textContent = text;
+  el.className = 'msg msg-' + type;
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(()=>{
+    el.style.display='none';
+    el.className='msg';
+  }, 3000);
+}
+
+function esc(s) { return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+// Try auto-login (if session cookie exists)
+fetch('/api/admin/content').then(r => { if(r.ok) loadAdmin(); });
+</script>
+</body>
+</html>
