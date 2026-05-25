@@ -31,7 +31,7 @@ function seedFromJsonIfNeeded(d) {
   if (existsSync(contentPath)) content = JSON.parse(readFileSync(contentPath, 'utf8'));
   normalizeContent(content);
   d.prepare('INSERT INTO app_content (id,json,updated_at) VALUES (1,?,?)').run(JSON.stringify(content), isoNow());
-  const password = content.admin?.password || config.adminPassword || 'admin123456';
+  const password = config.adminPassword || content.admin?.password || '123456';
   d.prepare('INSERT OR IGNORE INTO admins (username,password_hash,created_at,updated_at) VALUES (?,?,?,?)')
     .run(config.adminUsername, hashPassword(password), isoNow(), isoNow());
 

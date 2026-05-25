@@ -17,10 +17,17 @@ cp .env.example .env
 APP_PORT=3100
 SESSION_SECRET=改成强随机字符串
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=改成强密码
+ADMIN_PASSWORD=123456
 ```
 
-如果数据库已由旧 JSON 迁移生成，保留 `data/` 目录即可。
+默认后台账号：
+
+```txt
+账号：admin
+密码：123456
+```
+
+> 上传 GitHub 时只能提交 `.env.example`，不要提交真实 `.env`。上线后建议在 `.env` 里把 `SESSION_SECRET` 改成强随机字符串，并在后台自行修改密码。
 
 ### 2. 启动
 
