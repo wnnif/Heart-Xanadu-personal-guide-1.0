@@ -48,7 +48,9 @@ src/db/schema.sql
 
 ### `admins`
 
-后台账号。
+后台登录信息。
+
+当前后台登录页只需要密码，不需要账号；源码内部仍保留 `username` 字段用于以后扩展多管理员。
 
 - `username`
 - `password_hash`
