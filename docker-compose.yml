@@ -1,0 +1,12 @@
+services:
+  daohang:
+    build: .
+    container_name: daohang
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:${APP_PORT:-3100}:3000"
+    volumes:
+      - ./data:/app/data
+      - ./public/uploads:/app/public/uploads
