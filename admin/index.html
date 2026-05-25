@@ -54,6 +54,11 @@
         <div><label>位置</label><input id="f-location"></div>
       </div>
       <label>头像 URL</label><input id="f-avatar">
+      <div style="margin-top:12px">
+        <label>上传头像</label>
+        <input type="file" id="avatar-file" accept="image/*">
+        <button class="btn btn-sm btn-primary" onclick="uploadAvatar()">上传并使用头像</button>
+      </div>
       <label>个人简介</label><textarea id="f-bio"></textarea>
       <label>建站日期</label><input id="f-startDate" type="date">
     </div>
@@ -79,7 +84,7 @@
       <h3>🎨 壁纸</h3>
       <label>壁纸类型</label>
       <select id="f-wallpaper-mode" onchange="updateWallpaperUi()">
-        <option value="gradient">渐变背景（Zyyo 深色/浅色）</option>
+        <option value="gradient">渐变背景（深色/浅色）</option>
         <option value="seaya-anime">随机动漫（Seaya，自动横/竖屏）</option>
         <option value="api-random">随机 API（自己添加 API）</option>
         <option value="fixed">固定图片（选择 URL 或上传图片）</option>
@@ -89,8 +94,8 @@
       <div id="wallpaper-gradient-panel">
         <label>渐变背景模式</label>
         <select id="f-gradient-theme">
-          <option value="light">浅色模式（Zyyo 蓝白渐变）</option>
-          <option value="dark">深色模式（Zyyo 黑灰渐变）</option>
+          <option value="light">浅色模式（蓝白渐变）</option>
+          <option value="dark">深色模式（黑灰渐变）</option>
         </select>
       </div>
 

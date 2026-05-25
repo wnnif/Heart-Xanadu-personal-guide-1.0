@@ -212,6 +212,20 @@ async function uploadWallpaper() {
   } else showMsg('save-msg','上传失败: '+d.error,'err');
 }
 
+async function uploadAvatar() {
+  const input = document.getElementById('avatar-file');
+  if(!input.files.length) return showMsg('save-msg','请选择头像图片','err');
+  const fd = new FormData();
+  fd.append('file', input.files[0]);
+  const res = await fetch('/api/admin/upload', { method:'POST', body: fd });
+  const d = await res.json();
+  if(d.ok) {
+    content.profile.avatar = d.url;
+    document.getElementById('f-avatar').value = d.url;
+    showMsg('save-msg','✅ 头像上传成功，记得点底部保存','ok');
+  } else showMsg('save-msg','头像上传失败: '+d.error,'err');
+}
+
 async function changePwd() {
   const oldP = document.getElementById('f-oldpwd').value;
   const newP = document.getElementById('f-newpwd').value;
