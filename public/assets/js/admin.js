@@ -41,7 +41,10 @@ async function loadAdmin() {
   document.getElementById('admin-page').style.display = 'block';
 
   // Fill profile
-  document.title = '后台管理 - ' + (content.siteTitle || '个人导航');
+  const siteTitle = content.siteTitle || '个人导航';
+  document.title = '后台管理 - ' + siteTitle;
+  const titlePill = document.getElementById('admin-title-pill');
+  if (titlePill) titlePill.textContent = siteTitle;
   document.getElementById('f-site-title').value = content.siteTitle || '';
   document.getElementById('f-name').value = content.profile.name;
   document.getElementById('f-location').value = content.profile.location;
@@ -50,9 +53,12 @@ async function loadAdmin() {
   document.getElementById('f-startDate').value = content.profile.startDate;
 
   // Wallpaper
-  document.getElementById('f-wallpaper-mode').value = content.wallpaperMode || 'api-random';
+  let wallpaperMode = content.wallpaperMode || 'gradient';
+  if (wallpaperMode === 'list' || wallpaperMode === 'upload') wallpaperMode = 'fixed';
+  if (wallpaperMode === 'api-random' && content.wallpaperApiProvider === 'seaya-anime') wallpaperMode = 'seaya-anime';
+  document.getElementById('f-wallpaper-mode').value = wallpaperMode;
+  document.getElementById('f-gradient-theme').value = content.gradientTheme || 'dark';
   document.getElementById('f-wallpaper-apis').value = (content.wallpaperApis || []).join('\n');
-  document.getElementById('f-wallpaper-daily').value = content.wallpaperDailyApi || '';
 
   // Weather
   document.getElementById('f-weather-mode').value = content.weather?.mode || 'visitor-ip';
@@ -68,6 +74,7 @@ async function loadAdmin() {
   renderSites();
   // Wallpapers
   renderWps();
+  updateWallpaperUi();
   // Stats
   loadAdminStats();
 }
@@ -109,12 +116,24 @@ function addSite() {
   renderSites();
 }
 
+function updateWallpaperUi() {
+  const mode = document.getElementById('f-wallpaper-mode')?.value || 'gradient';
+  const gradientPanel = document.getElementById('wallpaper-gradient-panel');
+  const apiPanel = document.getElementById('wallpaper-api-panel');
+  const fixedPanel = document.getElementById('wallpaper-fixed-panel');
+  if (gradientPanel) gradientPanel.style.display = mode === 'gradient' ? 'block' : 'none';
+  if (apiPanel) apiPanel.style.display = mode === 'api-random' ? 'block' : 'none';
+  if (fixedPanel) fixedPanel.style.display = mode === 'fixed' ? 'block' : 'none';
+}
+
 function renderWps() {
   const el = document.getElementById('wp-list');
+  const selected = content.wallpaperFixed || content.wallpaperApi || '';
   el.innerHTML = (content.wallpapers||[]).map((w,i) => `
     <div class="item-row">
-      <input value="${esc(w)}" placeholder="壁纸 URL" onchange="content.wallpapers[${i}]=this.value">
-      <button class="btn btn-sm btn-danger" onclick="content.wallpapers.splice(${i},1);renderWps()">✕</button>
+      <input type="radio" name="fixed-wallpaper" ${w === selected ? 'checked' : ''} onchange="content.wallpaperFixed=content.wallpapers[${i}]" style="width:auto;flex:0;margin:0">
+      <input value="${esc(w)}" placeholder="图片 URL" onchange="content.wallpapers[${i}]=this.value;if(this.previousElementSibling.checked)content.wallpaperFixed=this.value">
+      <button class="btn btn-sm btn-danger" onclick="content.wallpapers.splice(${i},1);if(content.wallpaperFixed==='${esc(w)}')content.wallpaperFixed='';renderWps()">✕</button>
     </div>
   `).join('');
 }
@@ -122,6 +141,8 @@ function renderWps() {
 function addWp() {
   if(!content.wallpapers) content.wallpapers=[];
   content.wallpapers.push('');
+  document.getElementById('f-wallpaper-mode').value = 'fixed';
+  updateWallpaperUi();
   renderWps();
 }
 
@@ -147,10 +168,19 @@ async function saveAll() {
   content.profile.avatar = document.getElementById('f-avatar').value;
   content.profile.bio = document.getElementById('f-bio').value;
   content.profile.startDate = document.getElementById('f-startDate').value;
-  content.wallpaperMode = document.getElementById('f-wallpaper-mode').value;
+  const selectedWallpaperMode = document.getElementById('f-wallpaper-mode').value;
+  content.wallpaperMode = selectedWallpaperMode;
+  content.gradientTheme = document.getElementById('f-gradient-theme').value || 'dark';
+  content.wallpaperApiProvider = selectedWallpaperMode === 'seaya-anime' ? 'seaya-anime' : 'custom';
   content.wallpaperApis = document.getElementById('f-wallpaper-apis').value.split('\n').map(x=>x.trim()).filter(Boolean);
-  content.wallpaperApi = content.wallpaperApis[0] || '';
-  content.wallpaperDailyApi = document.getElementById('f-wallpaper-daily').value;
+  content.wallpapers = (content.wallpapers || []).map(x=>String(x||'').trim()).filter(Boolean);
+  if (selectedWallpaperMode === 'fixed') {
+    content.wallpaperFixed = content.wallpaperFixed || content.wallpapers[0] || '';
+    content.wallpaperApi = content.wallpaperFixed;
+  } else {
+    content.wallpaperApi = content.wallpaperApis[0] || '';
+  }
+  content.wallpaperDailyApi = content.wallpaperDailyApi || '';
   content.weather = { enabled: true, mode: document.getElementById('f-weather-mode').value, api: document.getElementById('f-weather-api').value };
   content.footer = { copyright: document.getElementById('f-copyright').value, icp: document.getElementById('f-icp').value };
 
@@ -173,10 +203,12 @@ async function uploadWallpaper() {
   if(d.ok) {
     if(!content.wallpapers) content.wallpapers=[];
     content.wallpapers.push(d.url);
-    content.wallpaperMode = 'upload';
-    document.getElementById('f-wallpaper-mode').value = 'upload';
+    content.wallpaperFixed = d.url;
+    content.wallpaperMode = 'fixed';
+    document.getElementById('f-wallpaper-mode').value = 'fixed';
+    updateWallpaperUi();
     renderWps();
-    showMsg('save-msg','✅ 上传成功，记得点底部保存','ok');
+    showMsg('save-msg','✅ 上传成功，已选择为固定壁纸，记得点底部保存','ok');
   } else showMsg('save-msg','上传失败: '+d.error,'err');
 }
 

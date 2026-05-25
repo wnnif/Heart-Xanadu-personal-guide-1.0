@@ -7,6 +7,9 @@ export async function publicRoutes(app) {
   app.get('/content', async () => getContent());
   app.get('/stats', async () => getStats());
   app.post('/visit', async (req) => { await recordVisit(req); return bumpPv(); });
-  app.get('/wallpaper', async (_req, reply) => reply.redirect(pickWallpaperUrl()));
+  app.get('/wallpaper', async (req, reply) => {
+    const orientation = req.query?.orientation === 'wap' ? 'wap' : 'web';
+    return reply.redirect(pickWallpaperUrl(orientation));
+  });
   app.get('/weather', async (req, reply) => { try { return await loadWeather(req); } catch { reply.code(502); return { error: 'Weather API unavailable' }; } });
 }

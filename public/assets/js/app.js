@@ -62,7 +62,8 @@ async function init() {
   footer.innerHTML = footerHtml;
 
   // Wallpaper
-  setWallpaper(getWallpaperUrl(true));
+  if (isGradientWallpaper()) setGradientBackground();
+  else setWallpaper(getWallpaperUrl(true), { eager: isSeayaWallpaper() || (content?.wallpaperMode === 'api-random') });
 
   // Weather
   loadWeather();
@@ -77,31 +78,86 @@ async function init() {
   }
 }
 
+function getScreenOrientation() {
+  return window.matchMedia('(max-width: 768px) and (orientation: portrait)').matches ? 'wap' : 'web';
+}
+
+function isGradientWallpaper() {
+  return content?.wallpaperMode === 'gradient';
+}
+
+function isSeayaWallpaper() {
+  return content?.wallpaperMode === 'seaya-anime' || (content?.wallpaperMode === 'api-random' && (content?.wallpaperApiProvider || '') === 'seaya-anime');
+}
+
+function getSeayaUrl() {
+  return getScreenOrientation() === 'wap'
+    ? `https://api.seaya.link/wap.php?type=file&_t=${Date.now()}`
+    : `https://api.seaya.link/web.php?type=file&_t=${Date.now()}`;
+}
+
+function applyWallpaperLayout() {
+  const bg = document.getElementById('bg');
+  const portrait = getScreenOrientation() === 'wap';
+  bg.classList.toggle('bg-portrait', portrait);
+  bg.classList.toggle('bg-landscape', !portrait);
+}
+
+function setGradientBackground() {
+  const bg = document.getElementById('bg');
+  applyWallpaperLayout();
+  bg.classList.remove('bg-gradient-light', 'bg-gradient-dark');
+  bg.classList.add((content?.gradientTheme || 'dark') === 'light' ? 'bg-gradient-light' : 'bg-gradient-dark');
+  bg.style.backgroundImage = '';
+}
+
 function getWallpaperUrl(first=false) {
-  const mode = content?.wallpaperMode || 'api-random';
-  if (mode === 'daily') return content.wallpaperDailyApi || '/api/wallpaper';
+  const mode = content?.wallpaperMode || 'gradient';
+  if (isSeayaWallpaper()) return getSeayaUrl();
   if (mode === 'api-random') return '/api/wallpaper';
-  const list = (content?.wallpapers || []).filter(Boolean);
-  if (list.length) {
-    if (first) wpIndex = Math.floor(Math.random() * list.length);
-    return list[wpIndex % list.length];
-  }
+  if (mode === 'fixed' || mode === 'list' || mode === 'upload') return content?.wallpaperFixed || content?.wallpaperApi || (content?.wallpapers || []).filter(Boolean)[0] || '/api/wallpaper';
   return content?.wallpaperApi || '/api/wallpaper';
 }
 
-function setWallpaper(url) {
+function setWallpaper(url, options = {}) {
   const bg = document.getElementById('bg');
+  applyWallpaperLayout();
+  if (!url) return;
   const img = new Image();
-  img.onload = () => { bg.style.backgroundImage = `url(${url})`; };
-  img.onerror = () => { bg.style.background = 'linear-gradient(135deg,#172554,#111827)'; };
+  if (options.eager) {
+    bg.style.backgroundImage = `url(${url})`;
+  }
+  img.onload = () => {
+    bg.style.backgroundImage = `url(${url})`;
+    applyWallpaperLayout();
+  };
+  img.onerror = () => {
+    if (!bg.style.backgroundImage || bg.style.backgroundImage.includes('gradient')) {
+      bg.style.backgroundImage = 'linear-gradient(135deg,#172554,#111827)';
+    }
+  };
   img.src = url;
 }
 
 function switchWallpaper() {
   if (!content) return;
-  if ((content.wallpaperMode === 'list' || content.wallpaperMode === 'upload') && content.wallpapers?.length) wpIndex++;
-  setWallpaper(getWallpaperUrl(false));
+  if (isGradientWallpaper()) return setGradientBackground();
+  setWallpaper(getWallpaperUrl(false), { eager: isSeayaWallpaper() || (content?.wallpaperMode === 'api-random') });
 }
+
+let lastOrientation = getScreenOrientation();
+window.addEventListener('resize', () => {
+  if (!content) return;
+  const next = getScreenOrientation();
+  if (next === lastOrientation) {
+    applyWallpaperLayout();
+    return;
+  }
+  lastOrientation = next;
+  if (isSeayaWallpaper()) setWallpaper(getWallpaperUrl(false), { eager: true });
+  else if (isGradientWallpaper()) setGradientBackground();
+  else applyWallpaperLayout();
+});
 
 async function loadWeather() {
   try {

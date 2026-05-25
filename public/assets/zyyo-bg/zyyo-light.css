@@ -1,0 +1,22 @@
+/* Zyyo light background/theme variables extracted from https://zyyo.cc/ */
+:root {
+  --zyyo-id: 3;
+  --zyyo-name: 主题3;
+  --zyyo-main-bg-color: linear-gradient(50deg, #a2d1ff, #ffffff);
+  --zyyo-main-text-color: #000000;
+  --zyyo-gradient: linear-gradient(120deg, #bd34fe, #e0321b 30%, #41d1ff 60%);
+  --zyyo-purple-text-color: #747bff;
+  --zyyo-text-bg-color: rgb(196 217 251);
+  --zyyo-item-bg-color: rgba(249, 250, 251, 0.5);
+  --zyyo-item-hover-color: rgba(244, 245, 246, 0.8);
+  --zyyo-footer-text-color: #222222;
+  --zyyo-left-tag-item: linear-gradient(50deg, #a2d1ff, #ffffff);
+  --zyyo-back-filter-color: #00000000;
+}
+.zyyo-light-background {
+  background: var(--zyyo-main-bg-color);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}

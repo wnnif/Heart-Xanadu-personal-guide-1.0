@@ -73,10 +73,13 @@ export function normalizeContent(c) {
   if (!Array.isArray(c.sites)) c.sites = [];
   if (!c.footer) c.footer = {};
   if (!c.weather) c.weather = { enabled: true, mode: 'visitor-ip', api: 'https://wttr.in/?format=j1' };
-  if (!c.wallpaperMode) c.wallpaperMode = 'api-random';
-  if (!c.wallpaperApi) c.wallpaperApi = 'https://api.dujin.org/bing/1920.php';
-  if (!c.wallpaperDailyApi) c.wallpaperDailyApi = 'https://api.dujin.org/bing/1920.php';
-  if (!Array.isArray(c.wallpaperApis)) c.wallpaperApis = ['https://api.dujin.org/bing/1920.php'];
+  if (!c.wallpaperMode) c.wallpaperMode = 'gradient';
+  if (!c.gradientTheme) c.gradientTheme = 'dark';
+  if (!c.wallpaperApiProvider) c.wallpaperApiProvider = c.wallpaperMode === 'seaya-anime' ? 'seaya-anime' : 'custom';
+  if (!c.wallpaperApi) c.wallpaperApi = '';
+  if (!c.wallpaperFixed) c.wallpaperFixed = '';
+  if (!c.wallpaperDailyApi) c.wallpaperDailyApi = '';
+  if (!Array.isArray(c.wallpaperApis)) c.wallpaperApis = [];
   if (!Array.isArray(c.wallpapers)) c.wallpapers = [];
   if (!c.admin) c.admin = {};
   return c;

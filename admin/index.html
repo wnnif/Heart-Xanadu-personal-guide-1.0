@@ -22,7 +22,7 @@
 <!-- Admin -->
 <div class="admin" id="admin-page">
   <div class="admin-header">
-    <h1>📊 后台管理</h1>
+    <h1>后台管理 <span class="header-pill" id="admin-title-pill">个人导航</span></h1>
     <div style="display:flex;gap:12px;align-items:center">
       <a href="/" style="color:var(--accent);text-decoration:none;font-size:14px">← 返回前台</a>
       <button class="btn btn-sm btn-danger" onclick="doLogout()">退出</button>
@@ -77,23 +77,37 @@
     <!-- Wallpapers -->
     <div class="section">
       <h3>🎨 壁纸</h3>
-      <label>壁纸模式</label>
-      <select id="f-wallpaper-mode">
-        <option value="api-random">随机 API（每次刷新/切换随机图）</option>
-        <option value="daily">每日 API（每日一张）</option>
-        <option value="list">固定图片列表</option>
-        <option value="upload">本地上传图片</option>
+      <label>壁纸类型</label>
+      <select id="f-wallpaper-mode" onchange="updateWallpaperUi()">
+        <option value="gradient">渐变背景（Zyyo 深色/浅色）</option>
+        <option value="seaya-anime">随机动漫（Seaya，自动横/竖屏）</option>
+        <option value="api-random">随机 API（自己添加 API）</option>
+        <option value="fixed">固定图片（选择 URL 或上传图片）</option>
       </select>
-      <label>随机 API 列表（一行一个）</label>
-      <textarea id="f-wallpaper-apis" placeholder="https://api.dujin.org/bing/1920.php"></textarea>
-      <label>每日壁纸 API</label><input id="f-wallpaper-daily" placeholder="https://api.dujin.org/bing/1920.php">
-      <label>固定/上传壁纸列表</label>
-      <div id="wp-list"></div>
-      <button class="btn btn-sm btn-primary" onclick="addWp()" style="margin-top:8px">+ 添加壁纸 URL</button>
-      <div style="margin-top:12px">
-        <label>上传壁纸</label>
-        <input type="file" id="wallpaper-file" accept="image/*">
-        <button class="btn btn-sm btn-primary" onclick="uploadWallpaper()">上传并加入列表</button>
+      <div class="help">渐变背景是独立类型，可选择深色/浅色；随机动漫是独立类型；随机 API 只使用下面添加的 API；固定图片只使用下面选中的某一张 URL/上传图片。</div>
+
+      <div id="wallpaper-gradient-panel">
+        <label>渐变背景模式</label>
+        <select id="f-gradient-theme">
+          <option value="light">浅色模式（Zyyo 蓝白渐变）</option>
+          <option value="dark">深色模式（Zyyo 黑灰渐变）</option>
+        </select>
+      </div>
+
+      <div id="wallpaper-api-panel">
+        <label>随机 API 列表（一行一个）</label>
+        <textarea id="f-wallpaper-apis" placeholder="https://example.com/random-image-api"></textarea>
+      </div>
+
+      <div id="wallpaper-fixed-panel">
+        <label>固定图片列表（选择其中一张生效）</label>
+        <div id="wp-list"></div>
+        <button class="btn btn-sm btn-primary" onclick="addWp()" style="margin-top:8px">+ 添加图片 URL</button>
+        <div style="margin-top:12px">
+          <label>上传本地图片</label>
+          <input type="file" id="wallpaper-file" accept="image/*">
+          <button class="btn btn-sm btn-primary" onclick="uploadWallpaper()">上传并选择为固定壁纸</button>
+        </div>
       </div>
     </div>
 

@@ -1,0 +1,33 @@
+/* Relevant Zyyo original snippets */
+html {
+  --id: 3;
+  --name: 主题3;
+  --main_bg_color: linear-gradient(50deg, #a2d1ff, #ffffff);
+  --main_text_color: #000000;
+  --gradient: linear-gradient(120deg, #bd34fe, #e0321b 30%, #41d1ff 60%);
+  --purple_text_color: #747bff;
+  --text_bg_color: rgb(196 217 251);
+  --item_bg_color: rgba(249, 250, 251, 0.5);
+  --item_hover_color: rgba(244, 245, 246, 0.8);
+  --footer_text_color: #222222;
+  --left_tag_item: linear-gradient(50deg, #a2d1ff, #ffffff);
+  --back_filter_color: #00000000;
+}
+html[data-theme="Dark"] {
+  --main_text_color: #fff;
+  --gradient: linear-gradient(120deg, rgb(133, 62, 255), #f76cc6 30%, rgb(255, 255, 255) 60%);
+  --purple_text_color: #747bff;
+  --text_bg_color: rgb(26, 4, 48);
+  --item_bg_color: rgb(19, 20, 24);
+  --item_hover_color: rgb(19, 23, 27);
+  --footer_text_color: #646464;
+  --left_tag_item: linear-gradient(50deg, #1f2327, #000000);
+  --back_filter_color: #000000;
+}
+body {
+  background: var(--main_bg_color);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}

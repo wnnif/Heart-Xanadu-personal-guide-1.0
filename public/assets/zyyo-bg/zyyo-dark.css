@@ -1,0 +1,20 @@
+/* Zyyo dark background/theme variables extracted from https://zyyo.cc/static/css/style.css */
+:root {
+  --zyyo-main-bg-color: linear-gradient(50deg, #1f2327, #000000);
+  --zyyo-main-text-color: #ffffff;
+  --zyyo-gradient: linear-gradient(120deg, rgb(133, 62, 255), #f76cc6 30%, rgb(255, 255, 255) 60%);
+  --zyyo-purple-text-color: #747bff;
+  --zyyo-text-bg-color: rgb(26, 4, 48);
+  --zyyo-item-bg-color: rgb(19, 20, 24);
+  --zyyo-item-hover-color: rgb(19, 23, 27);
+  --zyyo-footer-text-color: #646464;
+  --zyyo-left-tag-item: linear-gradient(50deg, #1f2327, #000000);
+  --zyyo-back-filter-color: #000000;
+}
+.zyyo-dark-background {
+  background: var(--zyyo-main-bg-color);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
