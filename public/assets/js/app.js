@@ -29,7 +29,14 @@ function isSafeUrl(url) {
 }
 
 function iconHtml(name) {
-  return ICONS[(name || '').toLowerCase()] || ICONS.link;
+  const raw = String(name || '').trim();
+  const key = raw.toLowerCase();
+  if (ICONS[key]) return ICONS[key];
+  if (isSafeUrl(raw) && /\.(svg|png|jpe?g|webp|gif)(\?.*)?$/i.test(raw)) {
+    return `<img src="${escHtml(raw)}" alt="" loading="lazy">`;
+  }
+  if (raw && raw.length <= 8) return `<span class="icon-emoji">${escHtml(raw)}</span>`;
+  return ICONS.link;
 }
 
 function siteCardHtml(s) {
@@ -165,7 +172,7 @@ function setGradientBackground() {
   const bg = document.getElementById('bg');
   applyWallpaperLayout();
   bg.classList.remove('bg-gradient-light', 'bg-gradient-dark');
-  const isLight = (content?.gradientTheme || 'dark') === 'light';
+  const isLight = (content?.gradientTheme || 'light') === 'light';
   bg.classList.add(isLight ? 'bg-gradient-light' : 'bg-gradient-dark');
   document.documentElement.setAttribute('data-theme', isLight ? 'Light' : 'Dark');
   bg.style.background = '';
@@ -180,14 +187,14 @@ function updateThemeToggle() {
   const show = isGradientWallpaper();
   btn.style.display = show ? 'flex' : 'none';
   if (!show) return;
-  const isLight = (content?.gradientTheme || 'dark') === 'light';
+  const isLight = (content?.gradientTheme || 'light') === 'light';
   btn.textContent = isLight ? '☀️' : '🌙';
   btn.title = isLight ? '当前浅色渐变，点击切换深色' : '当前深色渐变，点击切换浅色';
 }
 
 function toggleGradientTheme() {
   if (!content || !isGradientWallpaper()) return;
-  content.gradientTheme = (content.gradientTheme || 'dark') === 'light' ? 'dark' : 'light';
+  content.gradientTheme = (content.gradientTheme || 'light') === 'light' ? 'dark' : 'light';
   setGradientBackground();
 }
 

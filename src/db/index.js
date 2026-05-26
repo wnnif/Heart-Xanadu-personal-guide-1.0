@@ -94,7 +94,7 @@ export function normalizeContent(c) {
   if (!c.wallpaperMode) c.wallpaperMode = 'gradient';
   if (!c.uiTemplate) c.uiTemplate = 'scheme-a';
   if (!['scheme-a', 'scheme-b'].includes(c.uiTemplate)) c.uiTemplate = 'scheme-a';
-  if (!c.gradientTheme) c.gradientTheme = 'dark';
+  if (!c.gradientTheme) c.gradientTheme = 'light';
   if (!c.wallpaperApiProvider) c.wallpaperApiProvider = c.wallpaperMode === 'seaya-anime' ? 'seaya-anime' : 'custom';
   if (!c.wallpaperApi) c.wallpaperApi = '';
   if (!c.wallpaperFixed) c.wallpaperFixed = '';

@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Syntax checks
+        run: |
+          npm run check
+          node --check src/config/index.js
+          node --check src/db/index.js
+          node --check src/routes/admin.routes.js
+          node --check src/routes/public.routes.js
+          node --check src/services/auth.service.js
+          node --check src/services/content.service.js
+          node --check src/services/upload.service.js
+          node --check src/utils/crypto.js
+          node --check public/assets/js/app.js
+          node --check public/assets/js/admin.js
+
+      - name: Validate Docker Compose
+        run: docker compose config

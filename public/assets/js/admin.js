@@ -91,7 +91,7 @@ async function loadAdmin() {
   if (wallpaperMode === 'list' || wallpaperMode === 'upload') wallpaperMode = 'fixed';
   if (wallpaperMode === 'api-random' && content.wallpaperApiProvider === 'seaya-anime') wallpaperMode = 'seaya-anime';
   document.getElementById('f-wallpaper-mode').value = wallpaperMode;
-  document.getElementById('f-gradient-theme').value = content.gradientTheme || 'dark';
+  document.getElementById('f-gradient-theme').value = content.gradientTheme || 'light';
   document.getElementById('f-wallpaper-apis').value = (content.wallpaperApis || []).join('\n');
 
   // Weather
@@ -136,7 +136,7 @@ function renderContacts() {
     <div class="item-row" ${dragAttrs('contacts', i)}>
       <span class="drag-handle" title="拖动排序">⋮⋮</span>
       <input value="${esc(c.name)}" placeholder="名称" onchange="content.contacts[${i}].name=this.value">
-      <input value="${esc(c.icon)}" placeholder="图标，如 apple/qq/wechat" onchange="content.contacts[${i}].icon=this.value.toLowerCase()" style="max-width:150px">
+      <input value="${esc(c.icon)}" placeholder="图标/emoji/图片URL" onchange="content.contacts[${i}].icon=this.value.trim()" style="max-width:150px">
       <input value="${esc(c.url)}" placeholder="链接" onchange="content.contacts[${i}].url=this.value">
       <input value="${esc(c.color)}" placeholder="颜色" onchange="content.contacts[${i}].color=this.value" style="max-width:80px">
       <div class="sort-actions">
@@ -228,7 +228,7 @@ function renderSites() {
       <input value="${esc(s.name)}" placeholder="名称" onchange="content.sites[${i}].name=this.value" style="flex:1;min-width:100px">
       <input value="${esc(s.desc)}" placeholder="描述" onchange="content.sites[${i}].desc=this.value" style="flex:2;min-width:150px">
       <input value="${esc(s.url)}" placeholder="URL" onchange="content.sites[${i}].url=this.value" style="flex:2;min-width:150px">
-      <input value="${esc(s.icon)}" placeholder="图标" onchange="content.sites[${i}].icon=this.value.toLowerCase()" style="max-width:100px">
+      <input value="${esc(s.icon)}" placeholder="图标/emoji/图片URL" onchange="content.sites[${i}].icon=this.value.trim()" style="max-width:120px">
       <input value="${esc(s.color)}" placeholder="颜色" onchange="content.sites[${i}].color=this.value" style="max-width:80px">
       <select onchange="content.sites[${i}].category=this.value" style="max-width:150px;margin-bottom:0">${categoryOptions(s.category || '')}</select>
       <div class="sort-actions">
@@ -308,7 +308,7 @@ async function saveAll() {
   const selectedWallpaperMode = document.getElementById('f-wallpaper-mode').value;
   content.uiTemplate = document.getElementById('f-ui-template')?.value || 'scheme-a';
   content.wallpaperMode = selectedWallpaperMode;
-  content.gradientTheme = document.getElementById('f-gradient-theme').value || 'dark';
+  content.gradientTheme = document.getElementById('f-gradient-theme').value || 'light';
   content.wallpaperApiProvider = selectedWallpaperMode === 'seaya-anime' ? 'seaya-anime' : 'custom';
   content.wallpaperApis = document.getElementById('f-wallpaper-apis').value.split('\n').map(x=>x.trim()).filter(Boolean);
   content.wallpapers = (content.wallpapers || []).map(x=>String(x||'').trim()).filter(Boolean);
