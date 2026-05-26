@@ -1,9 +1,9 @@
 {
-  "siteTitle": "Heart Xanadu的个人引导页1.0",
+  "siteTitle": "Heart Xanadu 个人引导页",
   "uiTemplate": "scheme-a",
   "profile": {
     "name": "Heart Xanadu",
-    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=HX&backgroundColor=0066ff",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=HX&backgroundColor=747bff",
     "bio": "一个简洁美观的个人引导页，支持后台编辑内容、天气、访客统计、壁纸切换和 IP 访问记录。",
     "location": "中国",
     "startDate": "2024-01-01"
@@ -17,11 +17,11 @@
     { "id": "cat-common", "name": "常用入口", "order": 0 }
   ],
   "sites": [
-    { "name": "主站", "desc": "个人主页", "url": "https://hai.pw", "icon": "globe", "color": "#0066ff", "category": "cat-common", "order": 0 },
+    { "name": "主站", "desc": "个人主页", "url": "https://example.com", "icon": "globe", "color": "#0066ff", "category": "cat-common", "order": 0 },
     { "name": "博客", "desc": "文章与记录", "url": "https://blog.example.com", "icon": "compass", "color": "#ff6600", "category": "cat-common", "order": 1 }
   ],
   "wallpaperMode": "gradient",
-  "gradientTheme": "dark",
+  "gradientTheme": "light",
   "wallpaperApiProvider": "custom",
   "wallpaperApi": "",
   "wallpaperDailyApi": "",
@@ -41,7 +41,5 @@
     "githubLabel": "GitHub",
     "githubUrl": "https://github.com/wnnif/Heart-Xanadu-personal-guide-1.0"
   },
-  "admin": {
-    "password": "123456"
-  }
+  "admin": {}
 }
