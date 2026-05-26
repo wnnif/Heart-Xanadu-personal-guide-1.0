@@ -12,6 +12,7 @@
 </head>
 <body>
 <div id="bg"></div>
+<div class="zyyo-filter"></div>
 <div class="container">
   <div class="top-bar">
     <div class="weather" id="weather">
@@ -20,6 +21,7 @@
     </div>
     <div class="top-actions">
       <div class="stats" id="stats">访客: --</div>
+      <button class="btn-icon" id="theme-toggle" onclick="toggleGradientTheme()" title="切换深色/浅色渐变">🌙</button>
       <button class="btn-icon" onclick="switchWallpaper()" title="切换壁纸">🎨</button>
     </div>
   </div>
@@ -34,6 +36,9 @@
 
     <div class="time-card">
       <div class="time-display" id="time"></div>
+      <div class="day-progress-container" title="今日时间进度">
+        <div class="day-progress-bar" id="day-progress"></div>
+      </div>
       <div class="date-display" id="date"></div>
       <div class="running-days" id="running-days"></div>
     </div>

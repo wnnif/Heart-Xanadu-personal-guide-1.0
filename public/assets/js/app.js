@@ -1,4 +1,5 @@
 const ICONS = {
+  apple: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 1.43c0 1.14-.46 2.2-1.2 3.02-.8.89-2.06 1.58-3.19 1.49-.15-1.1.43-2.25 1.15-3.05.8-.89 2.2-1.53 3.24-1.46ZM20.5 17.15c-.56 1.28-.83 1.85-1.55 2.98-1 1.52-2.4 3.42-4.14 3.44-1.55.02-1.95-1-4.05-.99-2.1.01-2.54 1.01-4.09.99-1.74-.02-3.06-1.73-4.06-3.25-2.78-4.24-3.07-9.21-1.36-11.86 1.22-1.89 3.14-3 4.95-3 1.84 0 3 1.01 4.52 1.01 1.48 0 2.38-1.01 4.51-1.01 1.61 0 3.31.88 4.52 2.39-3.97 2.18-3.32 7.84.75 9.3Z"/></svg>',
   github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.88-.01-1.73-2.78.62-3.37-1.38-3.37-1.38-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.92.85.09-.67.35-1.12.63-1.38-2.22-.26-4.55-1.14-4.55-5.05 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05A9.3 9.3 0 0 1 12 6.98c.85 0 1.71.12 2.51.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.92-2.34 4.79-4.57 5.04.36.32.68.94.68 1.9v2.83c0 .27.18.58.69.48A10.12 10.12 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/></svg>',
   mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
   email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
@@ -17,6 +18,61 @@ const ICONS = {
 let content = null;
 let wpIndex = 0;
 
+function escHtml(s) {
+  return String(s || '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+}
+
+function isSafeUrl(url) {
+  const value = String(url || '').trim();
+  if (!value) return false;
+  return /^(https?:|mailto:|tel:|\/)/i.test(value);
+}
+
+function iconHtml(name) {
+  return ICONS[(name || '').toLowerCase()] || ICONS.link;
+}
+
+function siteCardHtml(s) {
+  return `
+    <a class="site-card" href="${escHtml(isSafeUrl(s.url) ? s.url : '#')}" target="_blank" rel="noopener">
+      <div class="site-icon" style="color:${escHtml(s.color)}">
+        ${iconHtml(s.icon)}
+      </div>
+      <div class="site-info">
+        <div class="site-name">${escHtml(s.name)}</div>
+        <div class="site-desc">${escHtml(s.desc)}</div>
+        <div class="site-url">${escHtml(s.url)}</div>
+      </div>
+    </a>
+  `;
+}
+
+function renderSites() {
+  const sitesEl = document.getElementById('sites');
+  const sites = [...(content.sites || [])].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  const categories = [...(content.siteCategories || [])]
+    .filter(c => c && c.name)
+    .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  const hasCategorizedSites = sites.some(s => s.category);
+  if (!categories.length || !hasCategorizedSites) {
+    sitesEl.classList.remove('sites-categorized');
+    sitesEl.innerHTML = sites.map(siteCardHtml).join('');
+    return;
+  }
+  sitesEl.classList.add('sites-categorized');
+  const known = new Set(categories.map(c => c.id));
+  const groups = categories.map(cat => ({ cat, sites: sites.filter(s => s.category === cat.id) })).filter(g => g.sites.length);
+  const uncategorized = sites.filter(s => !s.category || !known.has(s.category));
+  if (uncategorized.length) groups.push({ cat: { id: '', name: '未分类' }, sites: uncategorized });
+  sitesEl.innerHTML = groups.map(group => `
+    <section class="site-category-section">
+      <h3 class="site-category-title">${escHtml(group.cat.name)}</h3>
+      <div class="site-category-grid">${group.sites.map(siteCardHtml).join('')}</div>
+    </section>
+  `).join('');
+}
+
+
 async function init() {
   try {
     const res = await fetch('/api/content');
@@ -24,46 +80,48 @@ async function init() {
   } catch(e) { return; }
 
   document.title = content.siteTitle || content.profile?.name || '个人导航';
+  document.documentElement.setAttribute('data-ui-template', content.uiTemplate || 'scheme-a');
 
   // Profile
-  document.getElementById('avatar').src = content.profile.avatar;
+  const avatarImg = document.getElementById('avatar');
+  avatarImg.onerror = () => { avatarImg.removeAttribute('src'); avatarImg.closest('.avatar')?.classList.add('avatar-fallback'); };
+  if (content.profile.avatar) avatarImg.src = content.profile.avatar;
+  else avatarImg.closest('.avatar')?.classList.add('avatar-fallback');
   document.getElementById('profile-name').textContent = content.profile.name;
   document.getElementById('profile-bio').textContent = content.profile.bio;
   document.querySelector('#profile-location span').textContent = content.profile.location;
 
   // Contacts
   const contactsEl = document.getElementById('contacts');
-  contactsEl.innerHTML = content.contacts.map(c => `
-    <a class="contact-item" href="${c.url}" target="_blank" rel="noopener">
-      <span class="contact-icon" style="color:${c.color}">${ICONS[(c.icon||'').toLowerCase()] || ICONS.link}</span>
-      ${c.name}
+  const contacts = [...(content.contacts || [])].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  contactsEl.innerHTML = contacts.map(c => `
+    <a class="contact-item" href="${escHtml(isSafeUrl(c.url) ? c.url : '#')}" target="_blank" rel="noopener">
+      <span class="contact-icon" style="color:${escHtml(c.color)}">${iconHtml(c.icon)}</span>
+      <span>${escHtml(c.name)}</span>
     </a>
   `).join('');
 
   // Sites
-  const sitesEl = document.getElementById('sites');
-  sitesEl.innerHTML = content.sites.map(s => `
-    <a class="site-card" href="${s.url}" target="_blank" rel="noopener">
-      <div class="site-icon" style="background:${s.color}22;color:${s.color}">
-        ${ICONS[(s.icon||'').toLowerCase()] || ICONS.link}
-      </div>
-      <div class="site-info">
-        <div class="site-name">${s.name}</div>
-        <div class="site-desc">${s.desc}</div>
-        <div class="site-url">${s.url}</div>
-      </div>
-    </a>
-  `).join('');
+  renderSites();
 
   // Footer
   const footer = document.getElementById('footer');
-  let footerHtml = content.footer.copyright || '';
-  if (content.footer.icp) footerHtml += ' | ' + content.footer.icp;
-  footer.innerHTML = footerHtml;
+  const footerParts = [];
+  if (content.footer?.copyright) footerParts.push(`<span>${escHtml(content.footer.copyright)}</span>`);
+  if (content.footer?.icp) footerParts.push(`<span>${escHtml(content.footer.icp)}</span>`);
+  if (isSafeUrl(content.footer?.githubUrl)) {
+    footerParts.push(`<a class="footer-link footer-github" href="${escHtml(content.footer.githubUrl)}" target="_blank" rel="noopener" aria-label="GitHub 项目链接"><span class="footer-icon">${ICONS.github}</span><span>${escHtml(content.footer.githubLabel || 'GitHub')}</span></a>`);
+  }
+  footer.innerHTML = footerParts.join('<span class="footer-sep">|</span>');
 
   // Wallpaper
   if (isGradientWallpaper()) setGradientBackground();
-  else setWallpaper(getWallpaperUrl(true), { eager: isSeayaWallpaper() || (content?.wallpaperMode === 'api-random') });
+  else {
+    setWallpaper(getWallpaperUrl(true), { eager: isSeayaWallpaper() || (content?.wallpaperMode === 'api-random') });
+    document.documentElement.setAttribute('data-theme', 'Dark');
+  }
+  updateThemeToggle();
+  applyZyyoGlassTheme();
 
   // Weather
   loadWeather();
@@ -107,8 +165,45 @@ function setGradientBackground() {
   const bg = document.getElementById('bg');
   applyWallpaperLayout();
   bg.classList.remove('bg-gradient-light', 'bg-gradient-dark');
-  bg.classList.add((content?.gradientTheme || 'dark') === 'light' ? 'bg-gradient-light' : 'bg-gradient-dark');
+  const isLight = (content?.gradientTheme || 'dark') === 'light';
+  bg.classList.add(isLight ? 'bg-gradient-light' : 'bg-gradient-dark');
+  document.documentElement.setAttribute('data-theme', isLight ? 'Light' : 'Dark');
+  bg.style.background = '';
   bg.style.backgroundImage = '';
+  updateThemeToggle();
+  applyZyyoGlassTheme();
+}
+
+function updateThemeToggle() {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const show = isGradientWallpaper();
+  btn.style.display = show ? 'flex' : 'none';
+  if (!show) return;
+  const isLight = (content?.gradientTheme || 'dark') === 'light';
+  btn.textContent = isLight ? '☀️' : '🌙';
+  btn.title = isLight ? '当前浅色渐变，点击切换深色' : '当前深色渐变，点击切换浅色';
+}
+
+function toggleGradientTheme() {
+  if (!content || !isGradientWallpaper()) return;
+  content.gradientTheme = (content.gradientTheme || 'dark') === 'light' ? 'dark' : 'light';
+  setGradientBackground();
+}
+
+function applyZyyoGlassTheme() {
+  // Read theme and force wallpaper mode constraints to sync variables
+  const isLight = document.documentElement.getAttribute('data-theme') === 'Light';
+  const html = document.documentElement;
+  if (isLight) {
+    html.style.setProperty('--card_filter', '20px');
+    html.style.setProperty('--back_filter', '10px');
+    html.style.setProperty('--back_filter_color', 'rgba(255, 255, 255, 0.1)');
+  } else {
+    html.style.setProperty('--card_filter', '20px');
+    html.style.setProperty('--back_filter', '10px');
+    html.style.setProperty('--back_filter_color', 'rgba(0, 0, 0, 0.35)');
+  }
 }
 
 function getWallpaperUrl(first=false) {
@@ -201,8 +296,22 @@ function updateTime() {
   document.getElementById('time').textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
   document.getElementById('date').textContent = now.toLocaleDateString('zh-CN', opts);
+
+  // Calculate day progress percentage
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+  const totalSecondsInDay = 24 * 60 * 60;
+  const passedSeconds = (hours * 3600) + (minutes * 60) + seconds;
+  const percent = ((passedSeconds / totalSecondsInDay) * 100).toFixed(2);
+  const progressBar = document.getElementById('day-progress');
+  if (progressBar) {
+    progressBar.style.width = percent + '%';
+  }
 }
 updateTime();
 setInterval(updateTime, 1000);
 
 init();
+
+

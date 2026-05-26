@@ -2,6 +2,12 @@
 
 本项目主部署方式为 Docker Compose，保留 systemd + Nginx 作为备用方式。
 
+预览站点：
+
+```txt
+https://hai.pw
+```
+
 ## 方式 A：Docker Compose 主部署
 
 ### 1. 克隆项目
@@ -15,6 +21,7 @@ cd Heart-Xanadu-personal-guide-1.0
 
 ```bash
 cp .env.example .env
+openssl rand -hex 32
 ```
 
 编辑 `.env`：
@@ -22,18 +29,19 @@ cp .env.example .env
 ```env
 APP_PORT=3100
 SESSION_SECRET=改成强随机字符串
-ADMIN_PASSWORD=123456
+ADMIN_PASSWORD=改成初始后台密码
+MAX_UPLOAD_BYTES=5242880
 ```
 
-默认后台密码：
+默认示例后台密码：
 
 ```txt
-密码：123456
+123456
 ```
 
 后台登录页只需要输入密码，不需要账号。搭建完成后请登录后台自行修改密码。
 
-> 上传 GitHub 时只能提交 `.env.example` 和示例数据，不要提交真实 `.env`、`data/content.json`、`data/visits.json`、`data/*.sqlite`、`public/uploads/` 运行时上传内容。上线后建议在 `.env` 里把 `SESSION_SECRET` 改成强随机字符串。
+> 上传 GitHub 时只能提交 `.env.example` 和示例数据，不要提交真实 `.env`、`data/content.json`、`data/visits.json`、`data/*.sqlite`、`public/uploads/` 运行时上传内容。上线后必须把 `SESSION_SECRET` 改成强随机字符串。
 
 ### 3. 启动
 
@@ -48,14 +56,14 @@ curl http://127.0.0.1:3100/health
 curl http://127.0.0.1:3100/api/content
 ```
 
-### 4. Nginx 反代示例
+### 5. Nginx 反代示例
 
 宿主机 Nginx 继续负责 80/443，容器只监听本机端口。
 
 ```nginx
 server {
     listen 80;
-    server_name example.com;
+    server_name hai.pw;
 
     location / {
         proxy_pass http://127.0.0.1:3100;
@@ -67,7 +75,24 @@ server {
 }
 ```
 
-不要把域名写死进项目代码。
+不要把域名写死进项目代码；域名只应存在于部署文档、Nginx 配置或后台可编辑内容里。
+
+## 更新现有部署
+
+```bash
+cd /opt/daohang
+git pull
+docker compose up -d --build
+curl http://127.0.0.1:3100/health
+```
+
+如需保留线上数据，不要删除：
+
+```txt
+.env
+data/daohang.sqlite
+public/uploads/
+```
 
 ## 方式 B：systemd 备用部署
 
@@ -93,7 +118,10 @@ Environment=NODE_ENV=production
 Environment=HOST=127.0.0.1
 Environment=PORT=3100
 Environment=DB_PATH=/opt/daohang/data/daohang.sqlite
+Environment=DATA_DIR=/opt/daohang/data
 Environment=UPLOAD_DIR=/opt/daohang/public/uploads
+Environment=SESSION_SECRET=改成强随机字符串
+Environment=ADMIN_PASSWORD=改成初始后台密码
 ExecStart=/usr/bin/node /opt/daohang/src/server.js
 Restart=always
 RestartSec=3

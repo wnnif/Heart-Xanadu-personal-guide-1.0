@@ -70,10 +70,30 @@ function seedFromJsonIfNeeded(d) {
 export function normalizeContent(c) {
   if (!c.profile) c.profile = {};
   if (!Array.isArray(c.contacts)) c.contacts = [];
+  c.contacts = c.contacts.map((contact, i) => ({
+    ...contact,
+    order: Number.isFinite(Number(contact.order)) ? Number(contact.order) : i
+  }));
   if (!Array.isArray(c.sites)) c.sites = [];
+  if (!Array.isArray(c.siteCategories)) c.siteCategories = [];
+  c.siteCategories = c.siteCategories.map((cat, i) => ({
+    id: String(cat.id || `cat-${Date.now()}-${i}`),
+    name: String(cat.name || '').trim(),
+    order: Number.isFinite(Number(cat.order)) ? Number(cat.order) : i
+  })).filter(cat => cat.name);
+  c.sites = c.sites.map((site, i) => ({
+    ...site,
+    category: site.category ? String(site.category) : '',
+    order: Number.isFinite(Number(site.order)) ? Number(site.order) : i
+  }));
   if (!c.footer) c.footer = {};
+  if (!c.footer.githubLabel) c.footer.githubLabel = 'GitHub';
+  if (!c.footer.githubUrl) c.footer.githubUrl = 'https://github.com/wnnif/Heart-Xanadu-personal-guide-1.0';
+  c.profile.avatar = String(c.profile.avatar || '').trim();
   if (!c.weather) c.weather = { enabled: true, mode: 'visitor-ip', api: 'https://wttr.in/?format=j1' };
   if (!c.wallpaperMode) c.wallpaperMode = 'gradient';
+  if (!c.uiTemplate) c.uiTemplate = 'scheme-a';
+  if (!['scheme-a', 'scheme-b'].includes(c.uiTemplate)) c.uiTemplate = 'scheme-a';
   if (!c.gradientTheme) c.gradientTheme = 'dark';
   if (!c.wallpaperApiProvider) c.wallpaperApiProvider = c.wallpaperMode === 'seaya-anime' ? 'seaya-anime' : 'custom';
   if (!c.wallpaperApi) c.wallpaperApi = '';
@@ -85,3 +105,5 @@ export function normalizeContent(c) {
   return c;
 }
 function defaultContent() { return normalizeContent({ profile: { name: 'Wnn', avatar: '', bio: '', location: '', startDate: '' }, contacts: [], sites: [], wallpapers: [], footer: {}, admin: {} }); }
+
+

@@ -8,8 +8,14 @@ export async function saveUpload(file) {
   const allow = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
   const ext = extname(file.filename || '').toLowerCase();
   if (!allow.includes(ext)) throw new Error('只支持 jpg/png/webp/gif');
+  if (Number(file.file?.bytesRead || 0) > config.maxUploadBytes) throw new Error('文件过大');
   mkdirSync(config.uploadDir, { recursive: true });
   const name = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
-  await pipeline(file.file, createWriteStream(join(config.uploadDir, name)));
+  let written = 0;
+  file.file.on('data', chunk => {
+    written += chunk.length;
+    if (written > config.maxUploadBytes) file.file.destroy(new Error('文件过大'));
+  });
+  await pipeline(file.file, createWriteStream(join(config.uploadDir, name), { flags: 'wx' }));
   return `/uploads/${name}`;
 }

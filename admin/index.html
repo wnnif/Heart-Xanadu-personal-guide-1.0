@@ -29,10 +29,24 @@
     </div>
   </div>
   <div class="admin-body">
+    <nav class="admin-nav" aria-label="后台分区导航">
+      <div class="admin-nav-title">Control</div>
+      <a href="#stats-section">📈 统计</a>
+      <a href="#profile-section">👤 资料</a>
+      <a href="#contacts-section">📱 联系</a>
+      <a href="#categories-section">🗂️ 分类</a>
+      <a href="#sites-section">🌐 站点</a>
+      <a href="#template-section">🧊 模板</a>
+      <a href="#wallpaper-section">🎨 壁纸</a>
+      <a href="#weather-section">🌤️ 天气</a>
+      <a href="#footer-section">📄 页脚</a>
+      <a href="#password-section">🔑 密码</a>
+    </nav>
+    <main class="admin-main">
     <div id="save-msg" class="msg"></div>
 
     <!-- Stats -->
-    <div class="section">
+    <div class="section" id="stats-section">
       <h3>📈 访客统计</h3>
       <div class="stat-grid">
         <div class="stat-box"><div class="stat-num" id="s-visitors">-</div><div class="stat-label">今日访客</div></div>
@@ -46,7 +60,7 @@
     </div>
 
     <!-- Profile -->
-    <div class="section">
+    <div class="section" id="profile-section">
       <h3>👤 个人资料</h3>
       <label>页面标题 / 浏览器标签名</label><input id="f-site-title" placeholder="例如：浩一导航">
       <div class="row">
@@ -54,7 +68,7 @@
         <div><label>位置</label><input id="f-location"></div>
       </div>
       <label>头像 URL</label><input id="f-avatar">
-      <div style="margin-top:12px">
+      <div class="upload-inline">
         <label>上传头像</label>
         <input type="file" id="avatar-file" accept="image/*">
         <button class="btn btn-sm btn-primary" onclick="uploadAvatar()">上传并使用头像</button>
@@ -64,23 +78,52 @@
     </div>
 
     <!-- Contacts -->
-    <div class="section">
+    <div class="section" id="contacts-section">
       <h3>📱 联系方式</h3>
-      <div class="help">图标可填：qq、wechat、telegram、github、email/mail、twitter、globe、cloud、image、compass、link。填 QQ/qq 都会显示 QQ 图标。</div>
+      <div class="help">图标可填：apple、qq、wechat、telegram、github、email/mail、twitter、globe、cloud、image、compass、link。填 QQ/qq 都会显示 QQ 图标。</div>
       <div id="contacts-list"></div>
       <button class="btn btn-sm btn-primary" onclick="addContact()" style="margin-top:8px">+ 添加联系方式</button>
     </div>
 
+    <!-- Site Categories -->
+    <div class="section" id="categories-section">
+      <h3>🗂️ 站点分类</h3>
+      <div class="help">不添加分类时前台保持当前平铺；添加分类并给站点选择分类后，前台显示“我的站点 → 分类 → 站点”。分类和站点都支持排序。</div>
+      <div id="site-categories-list"></div>
+      <button class="btn btn-sm btn-primary" onclick="addSiteCategory()" style="margin-top:8px">+ 添加分类</button>
+    </div>
+
     <!-- Sites -->
-    <div class="section">
+    <div class="section" id="sites-section">
       <h3>🌐 个人站点</h3>
-      <div class="help">站点图标同样支持：qq、wechat、telegram、github、email、globe、cloud、image、compass、link。</div>
+      <div class="help">站点图标同样支持：apple、qq、wechat、telegram、github、email、globe、cloud、image、compass、link。</div>
       <div id="sites-list"></div>
       <button class="btn btn-sm btn-primary" onclick="addSite()" style="margin-top:8px">+ 添加站点</button>
     </div>
 
+    <!-- UI Template -->
+    <div class="section" id="template-section">
+      <h3>🧊 前台模板</h3>
+      <label>前台 UI 方案</label>
+      <div class="template-options">
+        <label class="template-option">
+          <input type="radio" name="ui-template" value="scheme-a" id="tpl-a" onchange="document.getElementById('f-ui-template').value=this.value">
+          <span><b>方案 A</b><small>高级毛玻璃：保留当前排版，增强流体背景和玻璃质感</small></span>
+        </label>
+        <label class="template-option">
+          <input type="radio" name="ui-template" value="scheme-b" id="tpl-b" onchange="document.getElementById('f-ui-template').value=this.value">
+          <span><b>方案 B</b><small>浮动主视觉：左侧 Hero 固定，右侧站点更像作品集卡片</small></span>
+        </label>
+      </div>
+      <select id="f-ui-template" style="display:none" onchange="syncTemplateRadios()">
+        <option value="scheme-a">方案 A</option>
+        <option value="scheme-b">方案 B</option>
+      </select>
+      <div class="help">切换后点击底部“保存所有修改”生效；不影响站点数据、壁纸、访问统计和后台登录。</div>
+    </div>
+
     <!-- Wallpapers -->
-    <div class="section">
+    <div class="section" id="wallpaper-section">
       <h3>🎨 壁纸</h3>
       <label>壁纸类型</label>
       <select id="f-wallpaper-mode" onchange="updateWallpaperUi()">
@@ -117,7 +160,7 @@
     </div>
 
     <!-- Weather -->
-    <div class="section">
+    <div class="section" id="weather-section">
       <h3>🌤️ 天气</h3>
       <label>天气模式</label>
       <select id="f-weather-mode">
@@ -128,16 +171,20 @@
     </div>
 
     <!-- Footer -->
-    <div class="section">
+    <div class="section" id="footer-section">
       <h3>📄 页脚</h3>
       <div class="row">
         <div><label>版权信息</label><input id="f-copyright"></div>
         <div><label>ICP 备案</label><input id="f-icp"></div>
       </div>
+      <div class="row">
+        <div><label>GitHub 项目名称</label><input id="f-github-label" placeholder="GitHub"></div>
+        <div><label>GitHub 项目链接</label><input id="f-github-url" placeholder="https://github.com/wnnif/Heart-Xanadu-personal-guide-1.0"></div>
+      </div>
     </div>
 
     <!-- Password -->
-    <div class="section">
+    <div class="section" id="password-section">
       <h3>🔑 修改密码</h3>
       <div class="row">
         <div><label>旧密码</label><div class="pwd-wrap"><input id="f-oldpwd" type="password"><button type="button" class="pwd-eye" onmousedown="showPwd('f-oldpwd',true)" onmouseup="showPwd('f-oldpwd',false)" onmouseleave="showPwd('f-oldpwd',false)" onclick="togglePwd('f-oldpwd', this)">👁</button></div></div>
@@ -146,8 +193,9 @@
       <button class="btn btn-sm btn-primary" onclick="changePwd()">修改密码</button>
     </div>
 
-    <button class="btn btn-primary btn-block" onclick="saveAll()" style="margin-top:12px;padding:14px;font-size:16px">💾 保存所有修改</button>
+    <div class="save-dock"><button class="btn btn-primary btn-block" onclick="saveAll()">💾 保存所有修改</button></div>
     <div style="height:40px"></div>
+    </main>
   </div>
 </div>
 
@@ -155,3 +203,6 @@
 <script defer src="/assets/js/admin.js"></script>
 </body>
 </html>
+
+
+

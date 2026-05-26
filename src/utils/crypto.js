@@ -11,5 +11,8 @@ export function verifyPassword(password, stored) {
   if (!stored.startsWith('pbkdf2$')) return String(password) === String(stored);
   const [, salt, hash] = stored.split('$');
   const candidate = crypto.pbkdf2Sync(String(password), salt, 120000, 32, 'sha256').toString('hex');
-  return crypto.timingSafeEqual(Buffer.from(candidate), Buffer.from(hash));
+  const candidateBuffer = Buffer.from(candidate);
+  const hashBuffer = Buffer.from(hash || '');
+  if (candidateBuffer.length !== hashBuffer.length) return false;
+  return crypto.timingSafeEqual(candidateBuffer, hashBuffer);
 }

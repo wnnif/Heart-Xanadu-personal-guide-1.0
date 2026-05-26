@@ -1,2 +1,12 @@
 import multipart from '@fastify/multipart';
-export async function registerMultipart(app) { await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); }
+import { config } from '../config/index.js';
+export async function registerMultipart(app) {
+  await app.register(multipart, {
+    limits: {
+      files: 1,
+      fileSize: config.maxUploadBytes,
+      fields: 5,
+      parts: 6,
+    },
+  });
+}

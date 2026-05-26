@@ -14,7 +14,24 @@
 
 ### GET `/api/content`
 
-获取前台内容配置。不会返回 `admin` 字段。
+获取前台内容配置。不会返回 `admin` 字段。主要字段：
+
+- `siteTitle`：浏览器标题。
+- `profile`：个人资料。
+- `contacts`：联系方式，支持 `apple`、`qq`、`wechat`、`telegram`、`github`、`email/mail`、`twitter`、`globe`、`cloud`、`image`、`compass`、`link` 图标。
+- `footer`：页脚配置，支持 `copyright`、`icp`、`githubLabel`、`githubUrl`，前台页脚会显示 GitHub 项目跳转链接。
+- `uiTemplate`：前台 UI 方案。
+
+- `scheme-a`：方案 A，高级毛玻璃，保留当前左窄右宽布局。
+- `scheme-b`：方案 B，浮动主视觉布局，左侧 Hero 固定，右侧站点卡片更突出。
+
+站点支持分类和排序字段：
+
+- `siteCategories`：分类列表，每项包含 `id`、`name`、`order`。
+- `sites[].category`：站点所属分类 ID；为空表示不分类。
+- `sites[].order`：站点排序，数字越小越靠前。
+
+前台规则：没有分类或没有站点选择分类时，保持原平铺布局；有分类时显示“我的站点 → 分类 → 站点”。
 
 ### GET `/api/stats`
 
@@ -111,3 +128,4 @@
 ### GET `/api/ip`
 
 后台 IP 访问记录页面。未登录会显示登录页；已登录显示按 IP 汇总的访问次数和展开详情。
+

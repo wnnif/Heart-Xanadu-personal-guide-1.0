@@ -39,7 +39,15 @@ src/db/schema.sql
 字段：
 
 - `id`：固定为 1。
-- `json`：完整内容配置。
+- `json`：完整内容配置，包含：
+  - `siteTitle`：浏览器标题。
+  - `profile` / `contacts` / `sites`：前台展示内容。
+  - `footer.githubLabel` / `footer.githubUrl`：页脚 GitHub 项目链接。
+  - `uiTemplate`：前台模板，`scheme-a` 或 `scheme-b`。
+  - `wallpaperMode` / `gradientTheme` / `wallpaperApis` / `wallpaperFixed`：壁纸配置。
+  - `siteCategories`：站点分类列表，分类项含 `id`、`name`、`order`。
+  - `sites[].category`：站点所属分类 ID，空字符串表示不分类。
+  - `sites[].order`：站点排序，数字越小越靠前。
 - `updated_at`：更新时间。
 
 当前为了兼容旧前端和旧后台，内容主体仍以 JSON 文档形式保存在 SQLite 中，避免第一次规范化时大拆数据结构。
@@ -110,3 +118,4 @@ npm run migrate
 ```
 
 如果 SQLite 已存在 `app_content`，不会重复覆盖。
+
